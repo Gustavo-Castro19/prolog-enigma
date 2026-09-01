@@ -34,39 +34,34 @@ suco(maracuja).
 suco(morango). 
 suco(uva).
 
-
-pos(Lista, Valor, Posicao) :- nth1(Posicao, Lista, Valor).
-
 mesma_posicao(L1, V1, L2, V2) :-
-    pos(L1, V1, P), pos(L2, V2, P).
+    nth1(P, L1, V1), nth1(P, L2, V2).
 
 adjacentes(L1, V1, L2, V2) :-
-    pos(L1, V1, P1), pos(L2, V2, P2),
+    nth1(P1, L1, V1), nth1( P2, L2, V2),
     ( P2 is P1 + 1 ; P1 is P2 + 1 ).
 
 esquerda(L1, V1, L2, V2) :-
-    pos(L1, V1, P1), pos(L2, V2, P2), P1 < P2.
+    nth1(P1, L1, V1 ), nth1(P2, L2, V2), P1 < P2.
 
-exatamente_esquerda(L1, V1, L2, V2) :-
-    pos(L1, V1, P1), pos(L2, V2, P2), P2 is P1 + 1.
+ex_esquerda(L1, V1, L2, V2) :-
+    nth1(P1, L1, V1), nth1(P2, L2, V2), P2 is P1 + 1.
 
-ponta(L, V) :- pos(L, V, P), (P =:= 1 ; P =:= 5).
-
-naposicao(L, V, P) :- pos(L, V, P).
+ponta(L, V) :- nth1(P, L, V), (P is 1 ; P is 5).
 
 
 modelo(Mochilas, Nomes, Meses, Jogos, Materias, Sucos) :-
 
     findall(S, suco(S), SucosDominio),
     permutation(SucosDominio, Sucos),
-    naposicao(Sucos, limao, 1),                            
-    naposicao(Sucos, morango, 3),                          
+    nth1(1, Sucos, limao),                            
+    nth1(3, Sucos, morango),                          
 
     findall(J, jogo(J), JogosDominio),
     permutation(JogosDominio, Jogos),
     adjacentes(Jogos, jogo_da_forca, Jogos, tres_ou_mais),  
     ponta(Jogos, cubo_vermelho),                            
-    naposicao(Jogos, jogo_da_forca, 3),                     
+    nth1(3, Jogos, jogo_da_forca),                     
     mesma_posicao(Sucos, uva, Jogos, logica),               
 
     findall(M, mes(M), MesesDominio),
@@ -86,17 +81,17 @@ modelo(Mochilas, Nomes, Meses, Jogos, Materias, Sucos) :-
     findall(Mt, materia(Mt), MateriasDominio),
     permutation(MateriasDominio, Materias),
     mesma_posicao(Materias, biologia, Sucos, morango),      
-    exatamente_esquerda(Sucos, uva, Materias, portugues),   
+    ex_esquerda(Sucos, uva, Materias, portugues),   
     mesma_posicao(Materias, matematica, Sucos, maracuja),   
     mesma_posicao(Materias, matematica, Meses, dezembro),   
 
     findall(N, nome(N), NomesDominio),
     permutation(NomesDominio, Nomes),
-    naposicao(Nomes, lenin, 5),                             
+    nth1(5, Nomes, lenin),                             
     ponta(Nomes, otavio),                                   
     mesma_posicao(Materias, historia, Nomes, joao),         
     adjacentes(Jogos, logica, Nomes, will),                 
-    exatamente_esquerda(Mochilas, branca, Nomes, will).     
+    ex_esquerda(Mochilas, branca, Nomes, will).     
 
 
 linha(Categoria, Lista) :-
@@ -106,7 +101,7 @@ linha(Categoria, Lista) :-
 
 imprime_celulas([]).
 imprime_celulas([V|T]) :-
-    format(atom(C), "~w~t~16|", [V]),
+    format( atom(C),"~w~t~16|", [V]),
     write(C),
     imprime_celulas(T).
 
@@ -124,8 +119,6 @@ resolver :-
     modelo(Mochilas, Nomes, Meses, Jogos, Materias, Sucos),
     !,
     imprime(Mochilas, Nomes, Meses, Jogos, Materias, Sucos).
-resolver :-
-    write('SEM SOLUCAO'), nl.
 
 main :-
     statistics(cputime, T1),
